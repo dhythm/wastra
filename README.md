@@ -2,6 +2,14 @@
 
 地方の現場業務（清掃、設備点検、保守）向けの業務管理 SaaS です。[Frappe Framework](https://frappe.io/framework) v16 のアプリです。
 
+現場の一覧です。
+
+![現場の一覧。現場名、顧客、ID の列に 3 件の現場が並ぶ](docs/images/work-site-list.webp)
+
+現場の入力画面です。
+
+![現場の入力画面。現場名、顧客、住所、設備メモの項目がある](docs/images/work-site-form.webp)
+
 開発のルールは [AGENTS.md](AGENTS.md)、設計は [ARCHITECTURE.md](ARCHITECTURE.md) にあります。
 
 ## 開発環境を作る
@@ -21,7 +29,7 @@ Docker がない環境では、Docker の代わりに MariaDB と Redis のサ�
 make setup
 ```
 
-初回は Frappe の取得とビルドで数分かかります。`make setup` は MariaDB と Redis を起動し、`.bench/` に bench を作り、サイト `wastra.localhost` に Wastra をインストールします。
+初回は Frappe の取得とビルドで数分かかります。`make setup` は MariaDB と Redis を起動し、`.bench/` に bench を作り、サイト `wastra.localhost` に Wastra をインストールします。サイトの言語は日本語、タイムゾーンは Asia/Tokyo、通貨は JPY に設定します。
 
 ## Docker のない環境で動かす
 

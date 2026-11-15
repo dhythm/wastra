@@ -67,5 +67,7 @@ bench --site "$site_name" set-config --parse allow_tests True
 
 bench use "$site_name"
 bench --site "$site_name" migrate
+bench --site "$site_name" execute frappe.desk.page.setup_wizard.setup_wizard.setup_complete \
+	--kwargs '{"args": {"language": "日本語", "country": "Japan", "timezone": "Asia/Tokyo", "currency": "JPY"}}'
 
 echo "セットアップ完了: make check / make test を実行できます"
