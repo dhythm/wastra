@@ -13,13 +13,15 @@ frappe_invoked_names = $(shell $(TOOLS)/python -c "import json, pathlib, tomllib
 	print(','.join(tomllib.loads(pathlib.Path('pyproject.toml').read_text())['tool']['vulture']['ignore_names'] \
 	+ [d['name'].replace(' ', '') for d in doctypes] + [f['fieldname'] for d in doctypes for f in d['fields']]))")
 
-.PHONY: setup start check fix lint typecheck test-unit test-integration test
+.PHONY: setup services start check fix lint typecheck test-unit test-integration test
 
 setup: ## 開発環境を作る。何度実行してもよい
 	./scripts/setup.sh
 
-start: ## http://wastra.localhost:8000 で起動する
-	docker compose up --detach --wait
+services: ## MariaDB と Redis を起動する。起動済みなら何もしない
+	@./scripts/services.sh
+
+start: services ## http://wastra.localhost:8000 で起動する
 	$(BENCH) start
 
 check: lint typecheck test ## コミット前に通す全チェック
@@ -38,10 +40,10 @@ lint: ## bench なしで動く静的チェック
 typecheck:
 	$(TOOLS)/mypy
 
-test-unit: ## DB を使わないテスト
+test-unit: services ## DB を使わないテスト
 	$(BENCH) --site $(SITE) run-tests --app wastra --test-category unit
 
-test-integration: ## DB を使うテスト
+test-integration: services ## DB を使うテスト
 	$(BENCH) --site $(SITE) run-tests --app wastra --test-category integration
 
 test: test-unit test-integration

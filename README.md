@@ -10,8 +10,10 @@
 
 - [uv](https://docs.astral.sh/uv/)。Python 3.14 と bench は `make setup` が uv 経由で取得します。
 - Node.js 24
-- Docker
 - MariaDB のクライアントと開発用ライブラリ。macOS では `brew install mariadb pkg-config` で入ります。Ubuntu では `apt-get install mariadb-client libmariadb-dev pkg-config` で入ります。
+- Docker。MariaDB と Redis の起動に使います。
+
+Docker がない環境では、Docker の代わりに MariaDB と Redis のサーバーを入れます。macOS では `brew install mariadb redis`、Ubuntu では `apt-get install mariadb-server redis-server` です。サービスとして起動しておく必要はありません。
 
 リポジトリのルートで実行します。
 
@@ -19,7 +21,15 @@
 make setup
 ```
 
-初回は Frappe の取得とビルドで数分かかります。`make setup` は MariaDB と Redis を Docker で起動し、`.bench/` に bench を作り、サイト `wastra.localhost` に Wastra をインストールします。
+初回は Frappe の取得とビルドで数分かかります。`make setup` は MariaDB と Redis を起動し、`.bench/` に bench を作り、サイト `wastra.localhost` に Wastra をインストールします。
+
+## Docker のない環境で動かす
+
+クラウドのエージェント環境のように Docker が動かない場所でも、手順は同じ `make setup` です。Docker に接続できないとき、`make setup` は `mariadbd` と `redis-server` をプロジェクト内のプロセスとして起動し、データを `.services/` に置きます。選んだ方式は `.env` の `WASTRA_SERVICES`（`docker` か `local`）に記録します。方式を指定するには、最初の `make setup` の前に環境変数 `WASTRA_SERVICES` を設定します。
+
+bench は root では動きません。root で始まる環境では、先に一般ユーザーを作り、そのユーザーで `uv` を入れてリポジトリを開きます。
+
+環境を再起動してプロセスが止まっても、`make check` と `make start` が先に `make services` を実行して起動し直します。
 
 ## 動かす
 

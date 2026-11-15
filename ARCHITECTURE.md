@@ -67,21 +67,29 @@ wastra/                  リポジトリのルート。Frappe アプリそのも
 │   ├── tests/           DocType に属さないテスト
 │   └── wastra/doctype/  DocType の定義、コントローラ、テスト
 ├── scripts/setup.sh     環境を作る唯一の手順
+├── scripts/services.sh  MariaDB と Redis を起動する
 ├── tools/               Yarn 1 の shim と Git フック
 ├── compose.yaml         MariaDB と Redis
-└── .bench/              Frappe 本体、仮想環境、サイト（Git 管理外）
+├── .bench/              Frappe 本体、仮想環境、サイト（Git 管理外）
+└── .services/           Docker なしの方式での DB と Redis のデータ（Git 管理外）
 ```
 
 `.bench/apps/wastra` はリポジトリのルートへのシンボリックリンクです。編集したファイルは、コピーなしで bench から見えます。
 
-MariaDB と Redis は Docker で動かします。バージョンを `compose.yaml` で固定でき、マシンに常駐サービスを増やしません。bench 自体はホストで動かします。テストの起動が速く、エディタと型検査が bench の仮想環境をそのまま使えるからです。
+動かすのに必要なサーバーは MariaDB と Redis の 2 つだけです。`scripts/services.sh` が 2 つを起動します。Docker が使える環境では `compose.yaml` を使い、バージョンを固定します。Docker が使えない環境では、同じ 2 つをプロジェクト内のプロセスとして起動し、データを `.services/` に置きます。どちらの方式でも、システムの常駐サービスは増やしません。
+
+Docker なしの方式は、AI エージェントの実行環境で動作確認をするためのものです。そこでは Docker が動かないことが多いので、`apt-get` で入るサーバーのバイナリだけで `make setup` と `make check` が通るようにしています。
+
+bench 自体はホストで動かします。テストの起動が速く、エディタと型検査が bench の仮想環境をそのまま使えるからです。
 
 ## 決めたことと理由
 
 | 決定 | 理由 |
 | --- | --- |
 | Frappe v16（`version-16` ブランチ） | 現行の安定版です。Python 3.14 と Node 24 が必要です。 |
-| DB は MariaDB 11.8 | Frappe の既定で、本番と同じ DB でテストできます。v16 は SQLite も選べますが、本番で使わない DB でテストを通しても保証になりません。 |
+| DB は MariaDB | Frappe の既定で、本番と同じ DB でテストできます。 |
+| 軽量な確認用にも SQLite を使わない | Frappe 16.56.0 では `bench new-site --db-type sqlite` が一意制約エラーで失敗します（frappe/frappe#44524）。Frappe 自身の CI も SQLite のテストを無効にしています。 |
+| Redis を省かない | Redis を止めると統合テストが失敗します。Frappe は検索インデックスの更新を Redis のキューに積みます。 |
 | Yarn 1 を `tools/bin/yarn` 経由で使う | Frappe は `yarn install --check-files` を実行し、Yarn 4 はこのオプションを拒否します。 |
 | 開発ツールのバージョンは `pyproject.toml` の `dependency-groups.dev` と `Makefile` に固定 | ローカルと CI で同じ結果にするためです。 |
 | pre-commit フレームワークを使わず、Git フックから `make lint typecheck` を呼ぶ | 検査の定義を `Makefile` の 1 か所にするためです。 |

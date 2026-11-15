@@ -10,22 +10,24 @@ python_version="3.14"
 
 cd "$repo_root"
 
-for required_command in uv node npx docker mariadb; do
+if [[ "$(id -u)" == 0 ]]; then
+	echo "bench は root では動きません。一般ユーザーで実行してください（README を参照）" >&2
+	exit 1
+fi
+
+for required_command in uv node npx mariadb; do
 	command -v "$required_command" >/dev/null || {
 		echo "必要なコマンドがありません: $required_command（README の前提条件を参照）" >&2
 		exit 1
 	}
 done
 
-touch .env && chmod 600 .env
-for secret_name in MARIADB_ROOT_PASSWORD ADMIN_PASSWORD; do
-	grep --quiet "^$secret_name=" .env || printf '%s=%s\n' "$secret_name" "$(openssl rand -hex 24)" >>.env
-done
-set -a && source .env && set +a
 
 git config core.hooksPath tools/githooks
 
-docker compose up --detach --wait
+./scripts/services.sh
+grep --quiet '^ADMIN_PASSWORD=' .env || printf 'ADMIN_PASSWORD=%s\n' "$(openssl rand -hex 24)" >>.env
+set -a && source .env && set +a
 
 export PATH="$repo_root/tools/bin:$PATH"
 bench() { uvx --python "$python_version" --from frappe-bench bench "$@"; }
