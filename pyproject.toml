@@ -1,0 +1,57 @@
+[project]
+name = "wastra"
+authors = [{ name = "dhythm", email = "dhythm@users.noreply.github.com" }]
+description = "地方の現場業務（清掃・設備点検・保守）向け業務管理"
+requires-python = ">=3.14"
+readme = "README.md"
+dynamic = ["version"]
+dependencies = []
+
+[build-system]
+requires = ["flit_core >=3.4,<4"]
+build-backend = "flit_core.buildapi"
+
+[dependency-groups]
+dev = ["mypy==2.4.1", "ruff==0.17.5", "vulture==2.16"]
+
+[tool.ruff]
+line-length = 110
+target-version = "py314"
+
+[tool.ruff.lint]
+select = ["ARG", "B", "C4", "C90", "E", "ERA", "F", "I", "N", "PIE", "RET", "RUF", "SIM", "UP", "W"]
+ignore = [
+	"E501", # 行長は formatter が決める
+	"W191", # Frappe の生成コードに合わせてタブでインデントする
+	"RUF001", # 日本語の全角文字を文字列に書く
+	"RUF002",
+	"RUF003",
+]
+typing-modules = ["frappe.types.DF"]
+
+[tool.ruff.lint.mccabe]
+max-complexity = 8
+
+[tool.ruff.format]
+indent-style = "tab"
+
+[tool.mypy]
+files = ["wastra"]
+mypy_path = [".bench/apps/frappe"] # Frappe は py.typed を持たないので、ソースとして読ませる
+strict = true
+disable_error_code = ["no-untyped-call"] # Frappe 本体の多くは型注釈を持たない
+
+[[tool.mypy.overrides]]
+module = ["frappe.*"]
+follow_imports = "silent"
+implicit_reexport = true # frappe.get_doc などの公開 API は __all__ なしの再エクスポート
+
+[tool.vulture]
+paths = ["wastra"]
+exclude = ["wastra/hooks.py"]
+ignore_decorators = ["@frappe.whitelist"]
+# Frappe が名前で呼び出すもの。DocType のクラス名とフィールド名は Makefile が JSON から読んで追加する。
+ignore_names = [
+	"test_*", "*Test*", "setUp*", "tearDown*",
+	"autoname", "validate", "onload", "on_*", "before_*", "after_*",
+]

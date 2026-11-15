@@ -1,0 +1,6 @@
+{
+	"$schema": "https://biomejs.dev/schemas/2.6.7/schema.json",
+	"vcs": { "enabled": true, "clientKind": "git", "useIgnoreFile": true },
+	"files": { "includes": ["wastra/**/*.js", "wastra/**/*.ts", "wastra/**/*.css"] },
+	"javascript": { "globals": ["frappe", "__", "cur_frm"] }
+}

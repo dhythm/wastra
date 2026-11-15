@@ -1,0 +1,3 @@
+#!/usr/bin/env bash
+# Frappe v16 は Yarn 1 を前提にする。開発者の PATH にある Yarn のバージョンに依存しないための shim。
+exec npx --yes yarn@1.22.22 "$@"
