@@ -10,6 +10,10 @@
 
 ![現場の入力画面。現場名、顧客、住所、設備メモの項目がある](docs/images/work-site-form.webp)
 
+スマートフォンでの現場の入力画面です。
+
+<img src="docs/images/work-site-form-mobile.webp" alt="スマートフォン幅での現場の入力画面。項目が縦に 1 列で並ぶ" width="320">
+
 開発のルールは [AGENTS.md](AGENTS.md)、設計は [ARCHITECTURE.md](ARCHITECTURE.md) にあります。
 
 ## 開発環境を作る
